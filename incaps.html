@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Инкапсуляция в C++ | Визуализация</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0c151c;
+      font-family: 'Inter', sans-serif;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      color: #d6e3ec;
+    }
+
+    .main-container {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .card {
+      background: #15232b;
+      border-radius: 28px;
+      padding: 32px 36px;
+      box-shadow: 0 20px 36px rgba(0,0,0,0.7);
+      border: 1px solid #2a404e;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-weight: 500;
+      font-size: 2.5rem;
+      letter-spacing: -0.01em;
+      color: #eaf0f5;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .subhead {
+      font-size: 1.05rem;
+      color: #b0c7d3;
+      margin-bottom: 24px;
+      border-left: 4px solid #3f7b8f;
+      padding-left: 20px;
+      line-height: 1.5;
+    }
+
+    .canvas-wrapper {
+      background: #0e1c24;
+      border-radius: 20px;
+      padding: 10px;
+      box-shadow: inset 0 2px 8px #00000040, 0 12px 24px -8px #00000080;
+      margin-bottom: 24px;
+      border: 1px solid #2a4553;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      background: #0e1c24;
+      cursor: default;
+    }
+
+    .control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 14px 24px;
+      margin: 8px 0 18px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      background: #1a2d38;
+      padding: 6px;
+      border-radius: 48px;
+      border: 1px solid #2f4a58;
+    }
+
+    .btn {
+      background: #1f3745;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 1.1rem;
+      font-family: 'Inter', sans-serif;
+      color: #d1e2ec;
+      box-shadow: 0 6px 10px #00000030;
+      cursor: pointer;
+      transition: all 0.12s;
+      border: 1px solid #3b5c6c;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 100px;
+    }
+
+    .btn:hover {
+      background: #2a4a5c;
+      border-color: #608a9c;
+      color: #f0f9ff;
+      box-shadow: 0 8px 14px #00000040;
+      transform: scale(0.98);
+    }
+
+    .btn.primary {
+      background: #2f6b82;
+      border-color: #1e5568;
+      color: white;
+    }
+
+    .btn.primary:hover {
+      background: #3e819b;
+    }
+
+    .value-panel {
+      background: #11232c;
+      padding: 8px 28px;
+      border-radius: 48px;
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: #cde1ec;
+      border: 1px solid #3b606f;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .value-panel span {
+      font-weight: 700;
+      background: #1a3542;
+      padding: 6px 24px;
+      border-radius: 40px;
+      color: #e2f0f9;
+      border: 1px solid #568094;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 22px;
+      margin: 32px 0 28px;
+    }
+
+    .info-card {
+      background: #102029;
+      padding: 22px 18px;
+      border-radius: 24px;
+      border: 1px solid #2c4757;
+      box-shadow: 0 8px 12px #00000030;
+    }
+
+    .info-card h3 {
+      font-weight: 500;
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+      color: #c7e0ed;
+      border-bottom: 1px solid #2c5566;
+      padding-bottom: 8px;
+    }
+
+    .info-card p {
+      color: #b1ccda;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .code-block {
+      background: #0b181f;
+      border-radius: 20px;
+      padding: 22px 26px;
+      border: 1px solid #2b4959;
+      margin: 28px 0 20px;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', monospace;
+      font-size: 0.95rem;
+      color: #c3dce8;
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .comparison {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      background: #0f1d26;
+      border-radius: 24px;
+      padding: 26px 30px;
+      border: 1px solid #2f4e5d;
+      margin-top: 20px;
+    }
+
+    .comparison > div {
+      flex: 1 1 240px;
+    }
+
+    .comparison h4 {
+      font-weight: 500;
+      color: #b9d6e5;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      text-align: center;
+      color: #8aa2b0;
+      font-size: 0.9rem;
+      border-top: 1px solid #1e3946;
+      padding-top: 24px;
+    }
+
+    .footer-note a {
+      color: #b0d2e4;
+      text-decoration: none;
+    }
+
+    .keyword {
+      color: #c792ea;
+    }
+    .type {
+      color: #82aaff;
+    }
+    .func {
+      color: #ffcb8b;
+    }
+
+    @media (max-width: 650px) {
+      .card { padding: 20px 16px; }
+      h1 { font-size: 2rem; }
+      .btn { padding: 10px 18px; font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="main-container">
+  <div class="card">
+    <h1>
+      Инкапсуляция в C++
+      <span style="font-size: 0.9rem; background: #1f4252; padding: 4px 16px; border-radius: 40px; font-weight: 400; color: #d3e5f0;">private / public</span>
+    </h1>
+    <div class="subhead">
+      <strong>Сокрытие данных и контролируемый доступ.</strong> Приватные члены класса недоступны извне.<br>
+      Взаимодействие — только через публичный интерфейс (геттеры, сеттеры, методы).
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="mainCanvas" width="1000" height="460"></canvas>
+    </div>
+
+    <div class="control-bar">
+      <div class="btn-group">
+        <button class="btn" id="depositBtn">+ Пополнить</button>
+        <button class="btn" id="withdrawBtn">− Снять</button>
+      </div>
+      <div class="value-panel">
+        Баланс
+        <span id="balanceDisplay">5000.00</span>
+      </div>
+      <button class="btn primary" id="randomOpBtn">Случайная операция</button>
+      <button class="btn" id="directAccessBtn">Прямой доступ</button>
+    </div>
+
+    <div style="margin-top: 16px; text-align: right;">
+      <a href="#" id="resetBalanceLink" style="color: #9bbfd2; text-decoration: none; border-bottom: 1px dashed #4e798c;">Сбросить баланс (5000)</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-weight: 400; font-size: 1.8rem; margin-bottom: 16px; color: #d2e4ef;">Почему инкапсуляция важна</h2>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Скрытие данных</h3>
+        <p>Приватные поля (private) защищены от случайного изменения. Внешний код не может испортить внутреннее состояние объекта.</p>
+      </div>
+      <div class="info-card">
+        <h3>Контроль доступа</h3>
+        <p>Геттеры и сеттеры позволяют валидировать данные перед присваиванием. Например, баланс не может стать отрицательным без специальной логики.</p>
+      </div>
+      <div class="info-card">
+        <h3>Упрощение поддержки</h3>
+        <p>Внутреннюю реализацию можно менять, не затрагивая код, который использует класс. Публичный интерфейс остаётся стабильным.</p>
+      </div>
+      <div class="info-card">
+        <h3>Повышение модульности</h3>
+        <p>Класс становится самодостаточным компонентом. Легче тестировать, переиспользовать и понимать.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-weight: 400; font-size: 1.8rem; margin-bottom: 12px; color: #d2e4ef;">Пример класса BankAccount</h2>
+    <div class="code-block">
+      <pre><span class="keyword">class</span> <span class="type">BankAccount</span> {
+<span class="keyword">private</span>:
+    <span class="type">double</span> balance;   <span style="color: #6a8a9a;">// инкапсулированное поле</span>
+
+<span class="keyword">public</span>:
+    <span class="type">double</span> <span class="func">getBalance</span>() <span class="keyword">const</span> { <span class="keyword">return</span> balance; }
+
+    <span class="type">void</span> <span class="func">deposit</span>(<span class="type">double</span> amount) {
+        <span class="keyword">if</span> (amount > <span class="number">0</span>) balance += amount;
+    }
+
+    <span class="type">bool</span> <span class="func">withdraw</span>(<span class="type">double</span> amount) {
+        <span class="keyword">if</span> (amount > <span class="number">0</span> && balance >= amount) {
+            balance -= amount;
+            <span class="keyword">return</span> <span class="keyword">true</span>;
+        }
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+};</pre>
+    </div>
+    <p style="color: #b5cfdd; margin-top: 10px; font-size: 0.95rem;">Прямое обращение к <code style="background: #1a313e; padding: 2px 8px; border-radius: 12px;">obj.balance</code> вызовет ошибку компиляции — это и есть инкапсуляция.</p>
+  </div>
+
+  <div class="card">
+    <div class="comparison">
+      <div>
+        <h4>Инкапсуляция</h4>
+        <p style="color: #b6d0dd;">Механизм языка, объединяющий данные и методы в классе и ограничивающий доступ к деталям реализации. Отвечает на вопрос «как это сделано».</p>
+      </div>
+      <div>
+        <h4>Абстракция</h4>
+        <p style="color: #b6d0dd;">Концепция, скрывающая сложность и показывающая только необходимый интерфейс. Отвечает на вопрос «что делает объект».</p>
+      </div>
+    </div>
+    <p style="margin-top: 20px; color: #a1bfcf;">Инкапсуляция — один из способов достижения абстракции. В C++ она реализуется с помощью спецификаторов <code>private</code>, <code>protected</code>, <code>public</code>.</p>
+  </div>
+
+  <div class="footer-note">
+    Интерактивная демонстрация инкапсуляции · Анимация баланса через Canvas · 
+    <a href="#" id="footerReset">сбросить демо</a>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    class BankAccount {
+      #balance;
+
+      constructor(initial = 5000.0) {
+        this.#balance = Math.max(0, Number(initial) || 0);
+      }
+
+      getBalance() {
+        return this.#balance;
+      }
+
+      deposit(amount) {
+        const val = Number(amount);
+        if (isNaN(val) || val <= 0) return false;
+        this.#balance += val;
+        return true;
+      }
+
+      withdraw(amount) {
+        const val = Number(amount);
+        if (isNaN(val) || val <= 0) return false;
+        if (this.#balance >= val) {
+          this.#balance -= val;
+          return true;
+        }
+        return false;
+      }
+
+      reset(newBalance = 5000.0) {
+        const val = Number(newBalance);
+        if (!isNaN(val) && val >= 0) {
+          this.#balance = val;
+        }
+      }
+    }
+
+    const account = new BankAccount(5000.0);
+
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const balanceSpan = document.getElementById('balanceDisplay');
+
+    let displayBalance = account.getBalance();
+    let targetBalance = account.getBalance();
+    let animFrame = null;
+
+    function formatBalance(value) {
+      return value.toFixed(2);
+    }
+
+    function drawCanvas(currentVal) {
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const grad = ctx.createLinearGradient(0, 0, w*0.8, h);
+      grad.addColorStop(0, '#11232b');
+      grad.addColorStop(1, '#0b181f');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#1e3f4d';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(30, h-30);
+      ctx.lineTo(w-30, h-30);
+      ctx.stroke();
+
+      ctx.font = '500 18px Inter, sans-serif';
+      ctx.fillStyle = '#bed9e7';
+      ctx.textAlign = 'left';
+      ctx.fillText('Объект BankAccount', 40, 60);
+
+      ctx.font = '400 14px Inter, sans-serif';
+      ctx.fillStyle = '#7ea2b4';
+      ctx.fillText('приватное поле balance (double)', 40, 86);
+
+      const boxX = 150, boxY = 120, boxW = 550, boxH = 210;
+
+      ctx.shadowColor = '#00000060';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 6;
+
+      ctx.fillStyle = '#12232e';
+      ctx.strokeStyle = '#3e7388';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxW, boxH, 18);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+
+      ctx.font = '500 16px Inter, sans-serif';
+      ctx.fillStyle = '#b1d0df';
+      ctx.fillText('PRIVATE', boxX + 30, boxY + 40);
+
+      drawLockIcon(boxX + boxW - 70, boxY + 28, 28);
+
+      ctx.font = '600 22px Inter, sans-serif';
+      ctx.fillStyle = '#a6c8db';
+      ctx.fillText('double balance', boxX + 40, boxY + 90);
+
+      ctx.font = '700 56px "Inter", monospace';
+      ctx.fillStyle = '#d9ecf7';
+      ctx.textAlign = 'center';
+      ctx.fillText(formatBalance(currentVal), boxX + boxW/2 + 20, boxY + 150);
+
+      ctx.font = '400 14px Inter, sans-serif';
+      ctx.fillStyle = '#719aac';
+      ctx.textAlign = 'left';
+      ctx.fillText('доступ только через public методы', boxX + 40, boxY + 185);
+
+      ctx.textAlign = 'center';
+
+      drawMethodBadge(40, 290, 'getBalance()', '#47906c', '#173e31');
+      drawCurvedArrow(110, 300, boxX-10, boxY+100, '#47906c');
+
+      drawMethodBadge(w - 180, 180, 'deposit(amount)', '#c49b2e', '#2e2a1c');
+      drawCurvedArrow(w-160, 210, boxX+boxW+10, boxY+60, '#c49b2e');
+
+      drawMethodBadge(40, 390, 'withdraw(amount)', '#3f8ea3', '#173a45');
+      drawCurvedArrow(130, 400, boxX+30, boxY+boxH-10, '#3f8ea3');
+
+      ctx.font = '400 13px Inter, sans-serif';
+      ctx.fillStyle = '#7b9eae';
+      ctx.textAlign = 'right';
+      ctx.fillText('интерфейс — публичные методы', w-40, h-20);
+      ctx.textAlign = 'left';
+    }
+
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+      if (w < 2 * r) r = w / 2;
+      if (h < 2 * r) r = h / 2;
+      this.moveTo(x + r, y);
+      this.lineTo(x + w - r, y);
+      this.quadraticCurveTo(x + w, y, x + w, y + r);
+      this.lineTo(x + w, y + h - r);
+      this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      this.lineTo(x + r, y + h);
+      this.quadraticCurveTo(x, y + h, x, y + h - r);
+      this.lineTo(x, y + r);
+      this.quadraticCurveTo(x, y, x + r, y);
+      return this;
+    };
+
+    function drawLockIcon(x, y, size) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = '#48758a';
+      ctx.shadowColor = '#00000050';
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(size*0.35, -size*0.1, size*0.35, 0.2, Math.PI - 0.2, false);
+      ctx.lineWidth = size*0.18;
+      ctx.strokeStyle = '#2d6074';
+      ctx.stroke();
+      ctx.fillStyle = '#3b6c82';
+      ctx.beginPath();
+      ctx.rect(0, 0, size*0.9, size*0.7);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(size*0.45, size*0.35, size*0.12, 0, 2*Math.PI);
+      ctx.fillStyle = '#0b1e27';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawMethodBadge(x, y, text, color, bgColor) {
+      ctx.save();
+      ctx.font = '500 15px Inter, sans-serif';
+      const metrics = ctx.measureText(text);
+      const padding = 20;
+      const width = metrics.width + padding*2;
+      const height = 36;
+
+      ctx.shadowColor = '#00000060';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 3;
+      ctx.fillStyle = bgColor;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.roundRect(x - width/2, y - height/2, width, height, 30);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowColor = 'transparent';
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+
+    function drawCurvedArrow(fromX, fromY, toX, toY, color) {
+      ctx.save();
+      ctx.strokeStyle = color + 'd0';
+      ctx.fillStyle = color;
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      const cp1x = fromX + (toX - fromX)*0.5;
+      const cp1y = fromY - 8;
+      const cp2x = toX - (toX - fromX)*0.25;
+      const cp2y = toY - 10;
+      ctx.moveTo(fromX, fromY);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, toX, toY);
+      ctx.stroke();
+
+      const angle = Math.atan2(toY - cp2y, toX - cp2x);
+      const arrowSize = 12;
+      const arrowX = toX - 7 * Math.cos(angle);
+      const arrowY = toY - 7 * Math.sin(angle);
+      ctx.beginPath();
+      ctx.moveTo(arrowX, arrowY);
+      ctx.lineTo(arrowX - arrowSize*0.5 * Math.cos(angle - 0.7), arrowY - arrowSize*0.5 * Math.sin(angle - 0.7));
+      ctx.lineTo(arrowX - arrowSize*0.5 * Math.cos(angle + 0.7), arrowY - arrowSize*0.5 * Math.sin(angle + 0.7));
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function animateBalance() {
+      const diff = targetBalance - displayBalance;
+      if (Math.abs(diff) < 0.005) {
+        displayBalance = targetBalance;
+      } else {
+        displayBalance += diff * 0.16;
+      }
+
+      drawCanvas(displayBalance);
+      balanceSpan.textContent = formatBalance(displayBalance);
+
+      if (Math.abs(targetBalance - displayBalance) > 0.01) {
+        animFrame = requestAnimationFrame(animateBalance);
+      } else {
+        displayBalance = targetBalance;
+        drawCanvas(displayBalance);
+        balanceSpan.textContent = formatBalance(displayBalance);
+        animFrame = null;
+      }
+    }
+
+    function startAnimation() {
+      if (animFrame) cancelAnimationFrame(animFrame);
+      animFrame = requestAnimationFrame(animateBalance);
+    }
+
+    function syncFromAccount() {
+      targetBalance = account.getBalance();
+      startAnimation();
+    }
+
+    document.getElementById('depositBtn').addEventListener('click', () => {
+      account.deposit(250 + Math.random() * 200);
+      syncFromAccount();
+    });
+
+    document.getElementById('withdrawBtn').addEventListener('click', () => {
+      account.withdraw(150 + Math.random() * 150);
+      syncFromAccount();
+    });
+
+    document.getElementById('randomOpBtn').addEventListener('click', () => {
+      const r = Math.random();
+      if (r < 0.6) {
+        account.deposit(100 + Math.random() * 500);
+      } else {
+        account.withdraw(50 + Math.random() * 300);
+      }
+      syncFromAccount();
+    });
+
+    document.getElementById('directAccessBtn').addEventListener('click', () => {
+    alert(
+        'Прямой доступ к приватному полю balance невозможен.\n\n' +
+        'В C++ члены класса, объявленные в секции private, недоступны извне.\n' +
+        'Попытка обратиться к account.balance приведёт к ошибке компиляции:\n\n' +
+        '  error: \'double BankAccount::balance\' is private\n\n' +
+        'Это инкапсуляция — сокрытие внутренних данных и предоставление\n' +
+        'контролируемого доступа только через публичные методы.\n\n' +
+        'В демонстрации (JavaScript) используется приватное поле #balance,\n' +
+        'которое также недоступно вне класса.'
+    );
+    });
+    
+    function resetBalance() {
+      account.reset(5000.0);
+      syncFromAccount();
+    }
+
+    document.getElementById('resetBalanceLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      resetBalance();
+    });
+
+    document.getElementById('footerReset').addEventListener('click', (e) => {
+      e.preventDefault();
+      resetBalance();
+    });
+
+    displayBalance = account.getBalance();
+    targetBalance = displayBalance;
+    drawCanvas(displayBalance);
+    balanceSpan.textContent = formatBalance(displayBalance);
+
+    window.addEventListener('resize', () => {
+      drawCanvas(displayBalance);
+    });
+  })();
+</script>
+</body>
+</html>
